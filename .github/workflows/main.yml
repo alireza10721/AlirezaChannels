@@ -1,0 +1,39 @@
+
+name: Build AhangBan APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'project.zip'
+      - '.github/workflows/main.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract ZIP
+        run: |
+          mkdir -p android-project
+          unzip -q project.zip -d android-project
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Build APK
+        working-directory: android-project
+        run: gradle assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AhangBan-APK
+          path: android-project/app/build/outputs/apk/debug/app-debug.apk
